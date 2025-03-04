@@ -20,5 +20,5 @@ jobs:
       - name: Push to FlakeHub
         uses: DeterminateSystems/flakehub-push@main
         with:
-          visibility: private
+          visibility: unlisted
           rolling: true
