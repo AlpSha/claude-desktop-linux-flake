@@ -71,8 +71,6 @@ in
       rm claude.ico
 
       # Process app.asar files
-      # We need to replace claude-native-bindings.node in both the
-      # app.asar package and .unpacked directory
       mkdir -p electron-app
       cp "lib/net45/resources/app.asar" electron-app/
       cp -r "lib/net45/resources/app.asar.unpacked" electron-app/
@@ -84,10 +82,15 @@ in
       cp ${patchy-cnb}/lib/patchy-cnb.*.node app.asar.contents/node_modules/claude-native/claude-native-binding.node
       cp ${patchy-cnb}/lib/patchy-cnb.*.node app.asar.unpacked/node_modules/claude-native/claude-native-binding.node
 
-      # .vite/build/index.js in the app.asar expects the Tray icons to be
-      # placed inside the app.asar.
+      # Ensure i18n folder is copied
+      mkdir -p app.asar.contents/resources/i18n
+      cp ../lib/net45/resources/en-US.json app.asar.contents/resources/i18n/en-US.json
+
+      # If there are other languages, copy them as well
+      cp ../lib/net45/resources/*.json app.asar.contents/resources/i18n/ || true
+
+      # The .vite/build/index.js in the app.asar expects the Tray icons to be placed inside the app.asar.
       mkdir -p app.asar.contents/resources
-      ls ../lib/net45/resources/
       cp ../lib/net45/resources/Tray* app.asar.contents/resources/
 
       # Repackage app.asar
@@ -103,6 +106,10 @@ in
       mkdir -p $out/lib/$pname
       cp -r $TMPDIR/build/electron-app/app.asar $out/lib/$pname/
       cp -r $TMPDIR/build/electron-app/app.asar.unpacked $out/lib/$pname/
+
+      # Ensure i18n folder is included in the installation
+      mkdir -p $out/lib/$pname/resources/i18n
+      cp -r $TMPDIR/build/lib/net45/resources/*.json $out/lib/$pname/resources/i18n/ || true
 
       # Install icons
       mkdir -p $out/share/icons
